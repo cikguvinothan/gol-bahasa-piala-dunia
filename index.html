@@ -1,1 +1,335 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gol Bahasa Piala Dunia - SMK BUDI 2</title>
+    <style>
+        * {margin: 0; padding: 0; box-sizing: border-box;}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+    .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 800px;
+            min-height: 600px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+    .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+    .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    .logo h1 { font-size: 1.2rem; color: #1e3c72; line-height: 1.2; }
+    .score {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+    .welcome-screen,.level-screen,.result-screen {
+            text-align: center;
+            padding: 20px 0;
+        }
+    .welcome-screen h2 { color: #1e3c72; margin: 20px 0; font-size: 2rem; }
+    .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            transition: 0.3s;
+            display: inline-block;
+            min-width: 200px;
+            -webkit-tap-highlight-color: transparent;
+        }
+    .btn:hover { background: #0056b3; transform: scale(1.05); }
+    .btn-option {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #007bff;
+            padding: 15px;
+            margin: 10px 0;
+            width: 100%;
+            text-align: left;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+    .btn-option:hover { background: #e3f2fd; }
+    .word-btn {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 14px 20px;
+            margin: 6px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: inline-block;
+            font-weight: bold;
+            transition: 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+    .word-btn:active { background: #ffb300; transform: scale(0.95); }
+    .word-btn:disabled { background: #ccc; cursor: not-allowed; opacity: 0.4; }
+    .sentence-box {
+            border: 3px dashed #007bff;
+            min-height: 80px;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 12px;
+            background: #f8f9fa;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+    .sentence-word {
+            background: #28a745;
+            color: white;
+            padding: 10px 14px;
+            margin: 4px;
+            border-radius: 10px;
+            display: inline-block;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+    .sentence-word:active { background: #dc3545; }
+    .question { font-size: 1.3rem; margin: 20px 0; color: #333; }
+    .level-title { color: #28a745; font-size: 1.5rem; margin-bottom: 10px; }
+    .trophy { font-size: 5rem; margin: 20px 0; }
+        @media (max-width: 600px) {
+        .game-container { padding: 15px; min-height: 500px; }
+        .logo h1 { font-size: 0.9rem; }
+        .welcome-screen h2 { font-size: 1.5rem; }
+        .btn { padding: 12px 30px; font-size: 1rem; min-width: 150px; }
+        .word-btn { font-size: 1.1rem; padding: 12px 18px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <div class="logo">
+                <div style="width:50px;height:50px;background:#1e3c72;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:1.2rem;">B2</div>
+                <h1>Gol Bahasa Piala Dunia<br><small style="font-size:0.7rem;">SMK Bandar Utama Damansara 2</small></h1>
+            </div>
+            <div class="score">⭐ <span id="score">0</span></div>
+        </div>
 
+        <div id="welcome" class="welcome-screen">
+            <div style="font-size:4rem;">⚽🏆</div>
+            <h2>Selamat Datang!</h2>
+            <p style="margin:20px 0;font-size:1.1rem;">Saya BolaComel, jom main bola dan belajar BM!</p>
+            <button class="btn" onclick="startGame()">Mula Main</button>
+        </div>
+
+        <div id="game" style="display:none;"></div>
+        <div id="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        let currentLevel = 0;
+        let score = 0;
+        let sentence = [];
+        
+        const levels = [
+            {
+                title: "Level 1: Huruf Besar",
+                question: "Pilih ayat yang menggunakan huruf besar dengan betul:",
+                options: ["saya suka makan nasi.", "Saya Suka Makan Nasi.", "Saya suka makan nasi.", "saya Suka makan Nasi."],
+                answer: 2
+            },
+            {
+                title: "Level 2: Suku Kata", 
+                question: "Berapa suku kata dalam perkataan 'SEKOLAH'?",
+                options: ["2", "3", "4", "5"],
+                answer: 1
+            },
+            {
+                title: "Level 3: Susun Ayat",
+                question: "Klik perkataan ikut urutan untuk bentuk ayat yang betul:",
+                words: ["makan", "Saya", "nasi", "suka"],
+                answer: "Saya suka makan nasi"
+            },
+            {
+                title: "Level 4: Lawan Kata",
+                question: "Apakah lawan kata bagi 'BESAR'?",
+                options: ["Tinggi", "Kecil", "Panjang", "Lebar"],
+                answer: 1
+            },
+            {
+                title: "Level 5: Sinonim",
+                question: "Apakah sinonim bagi 'CANTIK'?",
+                options: ["Hodoh", "Jelita", "Buruk", "Comot"],
+                answer: 1
+            }
+        ];
+
+        function startGame() {
+            document.getElementById('welcome').style.display = 'none';
+            currentLevel = 0;
+            score = 0;
+            updateScore();
+            showLevel();
+        }
+
+        function showLevel() {
+            const gameDiv = document.getElementById('game');
+            gameDiv.style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            
+            if (currentLevel >= levels.length) {
+                showFinalResult();
+                return;
+            }
+
+            const level = levels[currentLevel];
+            let html = `<div class="level-screen">
+                <div class="level-title">${level.title}</div>
+                <div class="question">${level.question}</div>`;
+
+            if (level.words) {
+                sentence = [];
+                html += `<div class="sentence-box" id="sentenceBox">Klik perkataan di bawah...</div>`;
+                html += `<div id="wordContainer">`;
+                level.words.forEach((word, idx) => {
+                    html += `<button class="word-btn" data-word="${word}" id="word-${idx}">${word}</button>`;
+                });
+                html += `</div><br>
+                    <button class="btn" id="checkBtn">Semak Jawapan</button>
+                    <button class="btn" id="resetBtn" style="background:#6c757d;">Padam Semua</button>`;
+            } else {
+                level.options.forEach((opt, i) => {
+                    html += `<button class="btn-option" data-choice="${i}">${opt}</button>`;
+                });
+            }
+            
+            html += `</div>`;
+            gameDiv.innerHTML = html;
+            
+            if (level.words) {
+                document.querySelectorAll('.word-btn').forEach(btn => {
+                    btn.addEventListener('click', function() { addWord(this.dataset.word, this); });
+                    btn.addEventListener('touchstart', function(e) { e.preventDefault(); addWord(this.dataset.word, this); });
+                });
+                document.getElementById('checkBtn').addEventListener('click', checkSentence);
+                document.getElementById('resetBtn').addEventListener('click', resetSentence);
+            } else {
+                document.querySelectorAll('.btn-option').forEach(btn => {
+                    btn.addEventListener('click', function() { checkAnswer(parseInt(this.dataset.choice)); });
+                });
+            }
+        }
+
+        function addWord(word, btn) {
+            sentence.push(word);
+            btn.disabled = true;
+            renderSentence();
+        }
+
+        function removeWord(index) {
+            const removedWord = sentence.splice(index, 1)[0];
+            renderSentence();
+            document.querySelectorAll('.word-btn').forEach(btn => {
+                if (btn.dataset.word === removedWord && btn.disabled) {
+                    btn.disabled = false;
+                    return;
+                }
+            });
+        }
+
+        function renderSentence() {
+            const box = document.getElementById('sentenceBox');
+            if (sentence.length === 0) {
+                box.innerHTML = 'Klik perkataan di bawah...';
+            } else {
+                box.innerHTML = sentence.map((w, i) => 
+                    `<span class="sentence-word" onclick="removeWord(${i})" title="Klik untuk padam">${w}</span>`
+                ).join(' ');
+            }
+        }
+
+        function resetSentence() {
+            sentence = [];
+            renderSentence();
+            document.querySelectorAll('.word-btn').forEach(btn => btn.disabled = false);
+        }
+
+        function checkSentence() {
+            const level = levels[currentLevel];
+            if (sentence.join(' ') === level.answer) {
+                score += 20;
+                alert('GOOOL! Jawapan betul! ⚽');
+                nextLevel();
+            } else {
+                alert('Cuba lagi! Susunan salah. Klik perkataan hijau untuk padam.');
+            }
+        }
+
+        function checkAnswer(choice) {
+            const level = levels[currentLevel];
+            if (choice === level.answer) {
+                score += 20;
+                alert('GOOOL! Jawapan betul! ⚽');
+                nextLevel();
+            } else {
+                alert('Cuba lagi! Jawapan salah.');
+            }
+        }
+
+        function nextLevel() {
+            updateScore();
+            currentLevel++;
+            setTimeout(showLevel, 1000);
+        }
+
+        function updateScore() {
+            document.getElementById('score').innerText = score;
+        }
+
+        function showFinalResult() {
+            document.getElementById('game').style.display = 'none';
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div class="result-screen">
+                    <div class="trophy">🏆</div>
+                    <h2 style="color:#28a745;">TAHNIAH!</h2>
+                    <p style="font-size:1.2rem;margin:20px 0;">Anda Pemain Terbaik Bahasa!</p>
+                    <p style="font-size:1.5rem;font-weight:bold;">Skor: ${score}/100</p>
+                    <p style="margin:20px 0;">SMK Bandar Utama Damansara 2</p>
+                    <p><small>Penyedia: Vinothan S.Ramayah, GKMP Bahasa</small></p>
+                    <button class="btn" onclick="startGame()">Main Semula</button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
